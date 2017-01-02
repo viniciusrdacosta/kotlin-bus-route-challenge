@@ -1,0 +1,21 @@
+machine:
+  java:
+    version: oraclejdk8
+  environment:
+    CODECOV_TOKEN: 2a4173d1-89e3-46b8-beea-a032b2f2cf22
+
+general:
+  branches:
+    only:
+      - master
+  artifacts:
+      - "/home/ubuntu/kotlin-bus-route-challenge/build/libs/kotlin-bus-route-challenge.jar"
+
+compile:
+  override:
+    - ./gradlew clean build
+
+test:
+  post:
+    - ./gradlew junitPlatformJacocoReport
+    - bash <(curl -s https://codecov.io/bash)

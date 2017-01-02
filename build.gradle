@@ -1,22 +1,27 @@
 buildscript {
     ext.kotlin_version = '1.0.6'
     ext.springBootVersion = '2.0.0.BUILD-SNAPSHOT'
+    ext.junitJupiterVersion = '5.0.0-M3'
+    ext.junitPlatformVersion = '1.0.0-M3'
     repositories {
         mavenCentral()
         maven { url 'http://repo.spring.io/snapshot' }
         maven { url 'http://repo.spring.io/milestone' }
     }
     dependencies {
-        classpath 'net.saliman:gradle-cobertura-plugin:2.2.4'
+        classpath "info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.1.10"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
-        classpath "org.junit.platform:junit-platform-gradle-plugin:1.0.0-M3"
+        classpath "org.junit.platform:junit-platform-gradle-plugin:$junitPlatformVersion"
+
+
     }
 }
 
 apply plugin: 'idea'
 apply plugin: 'kotlin'
 apply plugin: 'jacoco'
+apply plugin: 'info.solidsoft.pitest'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'org.junit.platform.gradle.plugin'
 
@@ -31,10 +36,11 @@ repositories {
 }
 
 junitPlatform {
-    platformVersion '1.0.0-M3'
+    platformVersion "$junitPlatformVersion"
     filters {
         engines {
             include 'junit-jupiter'
+
         }
         includeClassNamePatterns '.*Test', '.*Tests'
     }
@@ -47,14 +53,15 @@ dependencies {
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: "$kotlin_version"
     compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: "2.8.4"
 
-
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.4.2'
     testCompile group: 'com.nhaarman', name: 'mockito-kotlin', version: '1.0.1'
     testCompile group: 'net.wuerl.kotlin', name: 'assertj-core-kotlin', version: '0.1.3'
 
-    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.0.0-M3'
-    testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.0.0-M3'
-    testCompile group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.0.0-M3'
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: "$junitJupiterVersion"
+    testCompile group: 'org.junit.platform', name: 'junit-platform-runner', version: "$junitPlatformVersion"
+    testCompile group: 'org.junit.platform', name: 'junit-platform-launcher', version: "$junitPlatformVersion"
+
+    testRuntime group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: "$junitJupiterVersion"
 
     testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test', version: "$kotlin_version"
     testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: "$kotlin_version"
@@ -70,3 +77,6 @@ bootRun {
 task wrapper(type: Wrapper) {
     gradleVersion = "3.3"
 }
+
+apply from: "${rootProject.rootDir}/gradle/idea.gradle"
+apply from: "${rootProject.rootDir}/gradle/coverage.gradle"

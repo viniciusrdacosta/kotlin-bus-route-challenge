@@ -1,0 +1,25 @@
+pitest {
+    targetClasses = ['com.goeuro.challenge.*']
+    outputFormats = ['XML', 'HTML']
+}
+
+project.afterEvaluate {
+    def junitPlatformTestTask = project.tasks.getByName('junitPlatformTest')
+
+    jacoco {
+        toolVersion = "0.7.8"
+        applyTo junitPlatformTestTask
+    }
+
+    project.task(type: JacocoReport, "junitPlatformJacocoReport", {
+        dependsOn junitPlatformTestTask
+        sourceDirectories = files("src/main")
+        classDirectories = files("$buildDir/classes/main")
+        executionData junitPlatformTestTask
+
+        reports {
+            xml.destination "${buildDir}/reports/jacoco/report.xml"
+            xml.enabled true
+        }
+    })
+}
